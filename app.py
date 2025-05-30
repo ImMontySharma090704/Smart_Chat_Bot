@@ -10,7 +10,7 @@ import streamlit.components.v1 as components
 # GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # Or use it directly for testing
-GOOGLE_API_KEY = "AIzaSyDMVcqsrsYUhvCYVxZeaIP_L3jwnSvzBDw"
+GOOGLE_API_KEY = "api"
 
 # ✅ THIS IS WHAT YOU MISSED
 genai.configure(api_key=GOOGLE_API_KEY)
