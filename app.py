@@ -4,64 +4,55 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 import streamlit.components.v1 as components
 
+# Load API key from string or .env file
+# If you use .env, uncomment the below lines:
+# load_dotenv()
+# GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-# Load API key from .env
-load_dotenv()
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+# Or use it directly for testing
+GOOGLE_API_KEY = "AIzaSyDMVcqsrsYUhvCYVxZeaIP_L3jwnSvzBDw"
+
+# ✅ THIS IS WHAT YOU MISSED
 genai.configure(api_key=GOOGLE_API_KEY)
 
-# List available models (for debugging)
+# (Optional) List available models
 models = genai.list_models()
 for model in models:
     print(model.name, model.supported_generation_methods)
     print("-----")
 
 # Set up model
-model = genai.GenerativeModel("gemini-1.5-pro")
+model = genai.GenerativeModel("gemini-1.5-pro-001")
 
-# Streamlit page config
+# Streamlit UI setup
 st.set_page_config(page_title="Smart Bot", page_icon="🤖")
 st.title("🤖 SMART_BOT")
 
-# Initialize session state for chat history
+# Chat memory
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Display previous messages
+# Display previous chat
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# Get user input
+# Chat input
 user_input = st.chat_input("Type your message...")
 if user_input:
-    # Display user message
     st.chat_message("user").markdown(user_input)
     st.session_state.messages.append({"role": "user", "content": user_input})
 
-    # # Build conversation context
-    # chat = model.start_chat(history=[
-    #     genai.types.Content(role=m["role"], parts=[m["content"]])
-    #     for m in st.session_state.messages
-    # ])
-
-    # Build conversation context (corrected)
     chat = model.start_chat(history=[
         {"role": m["role"], "parts": [m["content"]]} for m in st.session_state.messages
     ])
 
-
-    # Get response from Gemini
     response = chat.send_message(user_input)
-
-    # Display assistant response
     reply = response.text
     st.session_state.messages.append({"role": "model", "content": reply})
 
     with st.chat_message("model"):
         st.markdown(reply)
-
-    # Advanced Copy Button
         components.html(f"""
             <div style="position: relative;">
                 <textarea id="gemini-reply" style="position:absolute; left:-9999px;">{reply}</textarea>
@@ -86,4 +77,3 @@ if user_input:
                 }}
             </script>
         """, height=80)
-
